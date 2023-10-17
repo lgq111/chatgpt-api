@@ -40,6 +40,7 @@ public class SpringBootRunTest {
     private IZsxqApi zsxqApi;
     @Resource
     private IOpenAI openAI;
+
     @Test
     public void test_zsxqApi() throws IOException {
         UnAnsweredQuestionsAggregates unAnsweredQuestionsAggregates = zsxqApi.queryUnAnsweredQuestionsTopicId(groupId, cookie);
@@ -47,18 +48,23 @@ public class SpringBootRunTest {
 
         List<Topics> topics = unAnsweredQuestionsAggregates.getResp_data().getTopics();
         for (Topics topic : topics) {
-            String topicId = topic.getTopic_id();
-            String text = topic.getQuestion().getText();
-            logger.info("topicId：{} text：{}", topicId, text);
-
-            // 回答问题
-            zsxqApi.answer(groupId, cookie, topicId, openAI.doChatGPT(openAiKey, text), false);
+            if(topic!=null) {
+                String topicId = topic.getTopic_id();
+                String text = topic.getTalk().getText();
+                logger.info("topicId：{} text：{}", topicId, text);
+                // 回答问题
+                if(topic.getTopic_id().equals("188451544188142"))
+                {
+                    String response = openAI.doChatGPT(text);
+                    logger.info("测试结果：{}", response);
+                    zsxqApi.answer(groupId, cookie, topicId, response, false);
+                }
+            }
         }
     }
-
     @Test
     public void test_openAi() throws IOException {
-        String response = openAI.doChatGPT(openAiKey, "帮我写一个java冒泡排序");
+        String response = openAI.doChatGPT("帮我写一个java冒泡排序");
         logger.info("测试结果：{}", response);
     }
 

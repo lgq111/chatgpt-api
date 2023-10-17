@@ -16,6 +16,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,11 +30,12 @@ import java.util.List;
  */
 @Service
 public class OpenAI implements IOpenAI {
-
     private Logger logger = LoggerFactory.getLogger(OpenAI.class);
+    @Value("${chatgpt-api.openAiKey}")
+    private String openAiKey;
 
     @Override
-    public String doChatGPT(String openAiKey, String question) throws IOException {
+    public String doChatGPT(String question) throws IOException {
         String pro = "127.0.0.1";//本机地址
         int pro1 = 7890; //代理端口号
         //创建一个 HttpHost 实例，这样就设置了代理服务器的主机和端口。
@@ -44,11 +46,10 @@ public class OpenAI implements IOpenAI {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         HttpPost post = new HttpPost("https://api.openai.com/v1/completions");
         post.addHeader("Content-Type", "application/json");
-        post.addHeader("Authorization", "Bearer " + openAiKey);
+        post.addHeader("Authorization", "Bearer "+openAiKey);
         //将 build 配置设置到 post 请求中包括先前指定的代理设置。
         post.setConfig(build);
         String paramJson = "{\"model\": \"text-davinci-003\", \"prompt\": \"" + question + "\", \"temperature\": 0, \"max_tokens\": 1024}";
-
         StringEntity stringEntity = new StringEntity(paramJson, ContentType.create("text/json", "UTF-8"));
         post.setEntity(stringEntity);
 

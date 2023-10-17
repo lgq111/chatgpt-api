@@ -38,9 +38,7 @@ public class ZsxqApi implements IZsxqApi {
     @Override
     public UnAnsweredQuestionsAggregates queryUnAnsweredQuestionsTopicId(String groupId, String cookie) throws IOException {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-
-        HttpGet get = new HttpGet("https://api.zsxq.com/v2/groups/" + groupId + "/topics?scope=unanswered_questions&count=20");
-        //HttpGet get = new HttpGet("https://api.zsxq.com/v2/groups/" + groupId + "/topics?scope=digests&count=20");
+        HttpGet get = new HttpGet("https://api.zsxq.com/v2/groups/" + groupId + "/topics?scope=all&count=20");
         get.addHeader("cookie", cookie);
         get.addHeader("Content-Type", "application/json;charset=utf8");
 
@@ -58,26 +56,13 @@ public class ZsxqApi implements IZsxqApi {
     public boolean answer(String groupId, String cookie, String topicId, String text, boolean silenced) throws IOException {
 
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-
-        HttpPost post = new HttpPost("https://api.zsxq.com/v2/topics/" + topicId + "/answer");
+        HttpPost post = new HttpPost("https://api.zsxq.com/v2/topics/" + topicId + "/comments");
         post.addHeader("cookie", cookie);
         post.addHeader("Content-Type", "application/json;charset=utf8");
         post.addHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36");
-
-
-        /* 测试数据
-          String paramJson = "{\n" +
-                "  \"req_data\": {\n" +
-                "    \"text\": \"自己去百度！\\n\",\n" +
-                "    \"image_ids\": [],\n" +
-                "    \"silenced\": false\n" +
-                "  }\n" +
-                "}";
-         */
         //就是以下的AnswerReq，转化为paramJson
         AnswerReq answerReq = new AnswerReq(new ReqData(text, silenced));
         String paramJson = JSONObject.toJSONString(answerReq);
-
 
         StringEntity stringEntity = new StringEntity(paramJson, ContentType.create("text/json", "UTF-8"));
         post.setEntity(stringEntity);
